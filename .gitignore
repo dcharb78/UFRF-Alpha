@@ -1,0 +1,14 @@
+# Lean build artifacts
+.lake/
+build/
+*.olean
+
+# Editor files
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+

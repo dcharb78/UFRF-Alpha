@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Charboneau
+    given-names: Daniel
+title: "UFRF Fine Structure Constant - Formal Proof in Lean 4"
+version: 1.0.0
+date-released: 2025-12-08
+license: CC0-1.0
+repository-code: "https://github.com/dcharb78/lean_proof_package_v2"
+keywords:
+  - "fine structure constant"
+  - "UFRF"
+  - "Lean 4"
+  - "formal proof"
+  - "geometric derivation"
+abstract: "A formal proof in Lean 4 that the fine structure constant α emerges from geometric relationships in the Unified Field Resonance Framework (UFRF), achieving 0.0075 ppb accuracy."
+

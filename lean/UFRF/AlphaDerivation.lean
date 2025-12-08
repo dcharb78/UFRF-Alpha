@@ -21,10 +21,12 @@ def alphaIntrinsicInv : ℝ :=
 /--
   Projection correction factor from the UFRF projection law,
   specialized to the atomic→human scale mapping.
+  
+  Uses `cycleLen` from `CycleAxioms` (13) rather than hardcoded value.
 -/
 def correctionFactor : ℝ :=
   (9 * 311 : ℝ) /
-    (312 * (13 : ℝ) ^ 2 * sqrt phi * (137 : ℝ) ^ 2)
+    (312 * (cycleLen : ℝ) ^ 2 * sqrt phi * (137 : ℝ) ^ 2)
 
 /-- Projected (observed) α⁻¹ from UFRF: intrinsic × (1 − correctionFactor). -/
 def alphaProjInv : ℝ :=

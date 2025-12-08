@@ -1,14 +1,50 @@
 # Lean build artifacts
-.lake/
-build/
+/build/
+/lake-packages/
 *.olean
+*.c
+*.o
+*.so
+*.dylib
+*.dll
 
 # Editor files
+.lean/
+.vscode/
+.idea/
 *.swp
 *.swo
 *~
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg-info/
+dist/
+build/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Instruction/update files (excluded from GitHub)
+push*.md
+Push*.md
+PUSH*.md
+*IMPLEMENTATION*.md
+*STATUS*.md
+*INTEGRATION*.md
+*ANALYSIS*.md
+*RESULTS*.md
+*REVIEW*.md
+*GUIDE*.md
+*PLAN*.md
+*COMPLETE*.md
+observer/
+
+# OS files
 .DS_Store
-
-# Logs
-*.log
-
+Thumbs.db

@@ -21,8 +21,11 @@ namespace UFRF
 noncomputable section
 open Real
 
-/-- Meta-cycle = 13². Used as the gravitational scaling base. -/
-def metaCycle : ℝ := (13 : ℝ) ^ 2  -- = 169
+/-- Meta-cycle = cycleLen². Used as the gravitational scaling base.
+    
+    Uses `cycleLen` from `CycleAxioms` (13), so metaCycle = 13² = 169.
+-/
+def metaCycle : ℝ := (cycleLen : ℝ) ^ 2  -- = 169
 
 /-- Provisional nesting depth k for gravity (to be refined from geometry). -/
 def kGravity : ℝ := 16.2

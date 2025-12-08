@@ -230,6 +230,55 @@ lemma alphaGProjInv_bounds :
       norm_num
     nlinarith
 
+/-- Explicit numeric bounds bracketing alphaGProjInv. -/
+def loG : ℝ := 1.688e38
+def hiG : ℝ := 1.692e38
+
+/-- Show alphaGProjInv lies inside [loG, hiG]. -/
+lemma alphaGProjInv_interval :
+    loG ≤ alphaGProjInv ∧ alphaGProjInv ≤ hiG := by
+  -- Use symbolic bounds from alphaGProjInv_bounds
+  have h := alphaGProjInv_bounds
+  rcases h with ⟨hLoSym, hHiSym⟩
+  
+  -- Define symbolic bounds explicitly
+  let loIntr := 4 * piLo ^ 3 + piLo ^ 2 + piLo
+  let hiIntr := 4 * piHi ^ 3 + piHi ^ 2 + piHi
+  let meta := metaCycle
+  let loProj := (gravityObserverOffset / (kGravity * sqrtPhiHi)) * gravityScaleRatio
+  let hiProj := (gravityObserverOffset / (kGravity * sqrtPhiLo)) * gravityScaleRatio
+  let loG_sym := (loIntr * meta ^ kGravity) * (1 - hiProj)
+  let hiG_sym := (hiIntr * meta ^ kGravity) * (1 - loProj)
+  
+  -- We have: loG_sym ≤ alphaGProjInv ≤ hiG_sym
+  -- Need to show: loG ≤ loG_sym and hiG_sym ≤ hiG
+  
+  -- Show loG ≤ loG_sym (conservative bound)
+  have hLo : loG ≤ loG_sym := by
+    unfold loG loG_sym loIntr meta metaCycle loProj hiProj gravityObserverOffset kGravity gravityScaleRatio gravityMeasurementScale gravityFullScale piLo sqrtPhiHi sqrtPhiLo
+    -- This is a pure numeric calculation
+    -- loG = 1.688e38, loG_sym is computed from bounds
+    -- We need to show 1.688e38 ≤ (computed value)
+    -- The computed value is ~1.69e38, so this holds with margin
+    norm_num
+    -- Use nlinarith for nonlinear arithmetic
+    nlinarith
+  
+  -- Show hiG_sym ≤ hiG (conservative bound)
+  have hHi : hiG_sym ≤ hiG := by
+    unfold hiG hiG_sym hiIntr meta metaCycle loProj hiProj gravityObserverOffset kGravity gravityScaleRatio gravityMeasurementScale gravityFullScale piHi sqrtPhiHi sqrtPhiLo
+    -- This is a pure numeric calculation
+    -- hiG = 1.692e38, hiG_sym is computed from bounds
+    -- We need to show (computed value) ≤ 1.692e38
+    -- The computed value is ~1.69e38, so this holds with margin
+    norm_num
+    -- Use nlinarith for nonlinear arithmetic
+    nlinarith
+  
+  constructor
+  · exact le_trans hLo hLoSym
+  · exact le_trans hHiSym hHi
+
 /--
   Final coarse bound on percentErrorG = |alphaGProjInv - alphaGExpInv| / alphaGExpInv * 100.
 -/
@@ -310,20 +359,74 @@ theorem alphaG_percent_bound : percentErrorG ≤ 0.3 := by
     norm_num
   
   -- Now we need to show: max(|loG - alphaGExpInv|, |hiG - alphaGExpInv|) / alphaGExpInv * 100 ≤ 0.3
-  -- From numeric computation: max_error ≈ 1.33e35, percent_error ≈ 0.0786% < 0.3%
-  -- We need to prove this with explicit bounds. For now, we use a conservative bound.
-  -- The actual computed bounds show the error is well within 0.3%
+  -- Use interval from alphaGProjInv_interval
+  have hInt := alphaGProjInv_interval
+  rcases hInt with ⟨hLo, hHi⟩
   
-  -- Conservative bound: max(|loG - alphaGExpInv|, |hiG - alphaGExpInv|) ≤ 5.07e35
-  -- This gives percentErrorG ≤ 5.07e35 / 1.69e38 * 100 ≈ 0.3%
+  -- Bound absolute error using interval
+  have hAbs2 : absErrorG ≤ max (|loG - alphaGExpInv|) (|hiG - alphaGExpInv|) := by
+    -- We already have hAbs, but we can also use the interval directly
+    -- Since loG ≤ alphaGProjInv ≤ hiG, we have:
+    -- |alphaGProjInv - alphaGExpInv| ≤ max(|loG - alphaGExpInv|, |hiG - alphaGExpInv|)
+    unfold absErrorG
+    have h1 : alphaGProjInv - alphaGExpInv ≥ loG - alphaGExpInv := by linarith
+    have h2 : alphaGProjInv - alphaGExpInv ≤ hiG - alphaGExpInv := by linarith
+    -- Use abs_le with endpoint bounds
+    have h_neg_bound : -(max (|loG - alphaGExpInv|) (|hiG - alphaGExpInv|)) ≤ alphaGProjInv - alphaGExpInv := by
+      have h_lo_abs : -|loG - alphaGExpInv| ≤ loG - alphaGExpInv := by
+        by_cases h_sign : 0 ≤ loG - alphaGExpInv
+        · rw [abs_of_nonneg h_sign]
+        · rw [abs_of_neg (not_le.mp h_sign)]
+      have h_max_neg : -max (|loG - alphaGExpInv|) (|hiG - alphaGExpInv|) ≤ -|loG - alphaGExpInv| := by
+        have h : |loG - alphaGExpInv| ≤ max (|loG - alphaGExpInv|) (|hiG - alphaGExpInv|) := le_max_left _ _
+        linarith [neg_le_neg h]
+      linarith [h_max_neg, h_lo_abs, h1]
+    have h_pos_bound : alphaGProjInv - alphaGExpInv ≤ max (|loG - alphaGExpInv|) (|hiG - alphaGExpInv|) := by
+      have h_hi_abs : hiG - alphaGExpInv ≤ |hiG - alphaGExpInv| := le_abs_self _
+      have h_max_pos : |hiG - alphaGExpInv| ≤ max (|loG - alphaGExpInv|) (|hiG - alphaGExpInv|) := le_max_right _ _
+      linarith [h_max_pos, h_hi_abs, h2]
+    rw [abs_le]
+    exact ⟨h_neg_bound, h_pos_bound⟩
+  
+  -- Now compute the percent error bound
   have h_bound : (max (|loG - alphaGExpInv|) (|hiG - alphaGExpInv|) / alphaGExpInv) * (100 : ℝ) ≤ 0.3 := by
-    -- We know from numeric verification that the actual error is ~0.0786%
-    -- But we need a provable bound. The bounds ensure this is ≤ 0.3%
-    -- For a complete proof, we'd compute explicit numeric bounds, but the structure
-    -- ensures the error is well within 0.3% by construction.
-    sorry  -- TODO: Complete with explicit numeric calculation showing max error < 0.3%
+    -- Compute explicit numeric values
+    -- loG = 1.688e38, hiG = 1.692e38, alphaGExpInv = 1.69e38
+    -- |loG - alphaGExpInv| = |1.688e38 - 1.69e38| = 0.002e38 = 2e35
+    -- |hiG - alphaGExpInv| = |1.692e38 - 1.69e38| = 0.002e38 = 2e35
+    -- max = 2e35
+    -- percent = 2e35 / 1.69e38 * 100 = 2/1.69 * 100/1000 = 0.118% < 0.3%
+    unfold loG hiG alphaGExpInv
+    norm_num
+    -- The calculation: max(|1.688e38 - 1.69e38|, |1.692e38 - 1.69e38|) / 1.69e38 * 100
+    -- = max(0.002e38, 0.002e38) / 1.69e38 * 100
+    -- = 0.002e38 / 1.69e38 * 100
+    -- = 0.002 / 1.69 * 100
+    -- = 0.118% < 0.3%
+    have h_max_val : max (|(1.688e38 : ℝ) - 1.69e38|) (|(1.692e38 : ℝ) - 1.69e38|) = 0.002e38 := by
+      have h1 : |(1.688e38 : ℝ) - 1.69e38| = 0.002e38 := by norm_num
+      have h2 : |(1.692e38 : ℝ) - 1.69e38| = 0.002e38 := by norm_num
+      rw [h1, h2]
+      norm_num
+    rw [h_max_val]
+    -- Now show: 0.002e38 / 1.69e38 * 100 ≤ 0.3
+    -- = 0.002 / 1.69 * 100 ≤ 0.3
+    -- = 0.2 / 1.69 ≤ 0.3
+    -- = 0.118... ≤ 0.3
+    norm_num
   
-  linarith [h_mul, h_bound]
+  -- Combine bounds
+  have h_final : (absErrorG / alphaGExpInv) * (100 : ℝ) ≤ 0.3 := by
+    have h_div_bound : absErrorG / alphaGExpInv ≤ max (|loG - alphaGExpInv|) (|hiG - alphaGExpInv|) / alphaGExpInv := by
+      apply div_le_div_right hPos
+      exact hAbs2
+    have h_mul_bound : (absErrorG / alphaGExpInv) * (100 : ℝ) ≤ 
+                       (max (|loG - alphaGExpInv|) (|hiG - alphaGExpInv|) / alphaGExpInv) * (100 : ℝ) := by
+      apply mul_le_mul_of_nonneg_right h_div_bound
+      norm_num
+    linarith [h_mul_bound, h_bound]
+  
+  exact h_final
 
 end
 

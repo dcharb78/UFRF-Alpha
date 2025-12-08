@@ -7,8 +7,10 @@ A formal proof in Lean 4 that the fine structure constant α emerges from geomet
 This repository contains a complete formal proof that:
 
 ```
-α⁻¹ = (4π³ + π² + π) × (1 − 9×311/(312 × 13² × √φ × 137²))
-    = 137.035999084
+α⁻¹_UFRF = (4π³ + π² + π) × (1 − 9×311/(312 × 13² × √φ × 137²))
+          ≈ 137.035999084
+
+with |α⁻¹_UFRF − α⁻¹_exp| ≤ 0.0075 ppb (Lean-verified).
 ```
 
 **Accuracy:** 0.0075 ppb (parts per billion), exceeding experimental precision.
@@ -33,7 +35,7 @@ lean/UFRF/
 └── AlphaNumericBounds.lean  -- Complete numeric proof
 
 lean/
-├── Monster_Moonshine.lean   -- Related Monster group proof
+├── Monster_Moonshine.lean   -- Related Monster group proof (see UFRF-MonsterMoonshinev1)
 └── [other related proofs]
 ```
 
@@ -63,6 +65,35 @@ theorem alpha_ppb_bound : ppbError ≤ 0.0075
 ```
 
 This establishes that the UFRF prediction matches the experimental value (137.035999084) within 0.0075 parts per billion.
+
+### Proof Sketch
+
+1. Define the intrinsic geometric value:
+   α⁻¹_* = 4π³ + π² + π.
+
+2. Define the projection factor from UFRF geometry:
+   c = (9×311) / (312 × 13² × √φ × 137²).
+
+3. Define the projected value:
+   α⁻¹_UFRF = α⁻¹_* × (1 − c).
+
+4. Use Lean 4 to:
+   - bound π, √5, φ, √φ with rational intervals,
+   - propagate those bounds through α⁻¹_* and c,
+   - bound |α⁻¹_UFRF − 137.035999084| / 137.035999084 × 1e9 ≤ 0.0075.
+
+All steps are checked by the Lean kernel; no `sorry` or extra axioms are used.
+
+### Inspecting the proof
+
+After `lake build`, you can open `lean/UFRF/AlphaDerivation.lean` and run:
+
+```lean
+#check UFRF.alpha_ppb_bound
+#print axioms UFRF.alpha_ppb_bound
+```
+
+This shows the theorem statement and verifies it uses only standard mathlib axioms (no UFRF-specific assumptions).
 
 ## Proof Structure
 

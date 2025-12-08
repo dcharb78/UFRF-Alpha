@@ -47,4 +47,4 @@ require mathlib from git
   "https://github.com/leanprover-community/mathlib4.git" @ "v4.26.0-rc2"
 
 lean_lib «MonsterMoonshineUFRF» where
-  roots := #[`Monster_Moonshine, `PhaseLog_Monoid, `Concurrency_BoundedGap, `ZPartition, `UFRF.Params, `UFRF.Moonshine, `UFRF.AlphaDerivation, `UFRF.AlphaNumericBounds]
+  roots := #[`Monster_Moonshine, `PhaseLog_Monoid, `Concurrency_BoundedGap, `ZPartition, `UFRF.Params, `UFRF.Moonshine, `UFRF.AlphaDerivation, `UFRF.AlphaNumericBounds, `UFRF.GravityDerivation, `UFRF.GravityNumericBounds]

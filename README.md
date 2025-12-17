@@ -1,5 +1,7 @@
 # UFRF Physical Constants - Formal Proofs in Lean 4
 
+![](https://muddy-frog-30d2.daniel-208.workers.dev/UFRF-Alpha.png)
+
 Formal proofs in Lean 4 that fundamental physical constants emerge from geometric relationships in the Unified Field Resonance Framework (UFRF).
 
 ## Overview
